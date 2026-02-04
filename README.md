@@ -1,43 +1,86 @@
-# Mintlify Starter Kit
+flowchart TD
+    subgraph Entry["Entry Points"]
+        E1["Without Pub<br/>(substack.com signup)"]
+        E2["With Pub<br/>(publication page signup)"]
+    end
 
-Use the starter kit to get your docs deployed and ready to customize.
+    subgraph PubFlow["Publication Signup Flow"]
+        PUB_LANDING["PUB_LANDING<br/>Shows pub info + Subscribe button"]
+        PUB_SIGNUP["PUB_SIGNUP<br/>Email signup for pub"]
+    end
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+    subgraph MainFlow["Main Onboarding Flow"]
+        CATEGORIES["CATEGORIES<br/>Select 3+ topics"]
+        SIGNUP["SIGNUP<br/>Enter email to create account"]
+        PROFILE["PROFILE<br/>Set up name, photo, bio"]
+    end
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
+    subgraph WriterFlow["Writer Upsell Flow"]
+        START_WRITING["START_WRITING<br/>'Want to start writing?'"]
+        CREATE_PUBLICATION["CREATE_PUBLICATION<br/>Enter subdomain URL"]
+        CREATE_PUBLICATION_SUCCESS["CREATE_PUBLICATION_SUCCESS<br/>'You're all set!'"]
+    end
 
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
+    subgraph FinalFlow["Final Steps"]
+        APP_UPSELL["APP_UPSELL<br/>Download the Substack app"]
+        WELCOME["WELCOME / DONE<br/>'You're all set!'"]
+        EXIT["EXIT<br/>Redirect to feed/pub"]
+    end
 
-## Development
+    ERROR["ERROR<br/>Something went wrong"]
 
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
+    %% Entry Points
+    E1 --> CATEGORIES
+    E2 -->|"profile exists + user logged in"| CATEGORIES
+    E2 -->|"profile exists + NO user"| PUB_SIGNUP
+    E2 -->|"no profile"| PUB_LANDING
 
-```
-npm i -g mint
-```
+    %% Pub Flow
+    PUB_LANDING -->|"Subscribe (logged in)"| CATEGORIES
+    PUB_LANDING -->|"Subscribe (NOT logged in)"| PUB_SIGNUP
+    PUB_SIGNUP -->|"Success"| CATEGORIES
 
-Run the following command at the root of your documentation, where your `docs.json` is located:
+    %% Categories branching logic
+    CATEGORIES -->|"NOT logged in"| SIGNUP
+    CATEGORIES -->|"Logged in + NO profile"| PROFILE
+    CATEGORIES -->|"Logged in + profile + HAS pub"| APP_UPSELL
+    CATEGORIES -->|"Logged in + profile + NO pub"| START_WRITING
 
-```
-mint dev
-```
+    %% Signup flow
+    SIGNUP -->|"New user"| PROFILE
+    SIGNUP -->|"Existing user"| APP_UPSELL
 
-View your local preview at `http://localhost:3000`.
+    %% Profile flow
+    PROFILE --> APP_UPSELL
 
-## Publishing changes
+    %% Writer upsell flow
+    START_WRITING -->|"Create my publication"| CREATE_PUBLICATION
+    START_WRITING -->|"Skip for now"| APP_UPSELL
+    CREATE_PUBLICATION -->|"Success"| CREATE_PUBLICATION_SUCCESS
+    CREATE_PUBLICATION_SUCCESS -->|"Visit dashboard"| EXIT
+    CREATE_PUBLICATION_SUCCESS -->|"Maybe later"| APP_UPSELL
 
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
+    %% Final steps
+    APP_UPSELL --> WELCOME
+    WELCOME --> EXIT
 
-## Need help?
+    %% Error handling
+    CATEGORIES -.->|"Error"| ERROR
+    SIGNUP -.->|"Error"| ERROR
+    PROFILE -.->|"Error"| APP_UPSELL
+    CREATE_PUBLICATION -.->|"Error"| ERROR
 
-### Troubleshooting
+    %% Styling
+    classDef entry fill:#e1f5fe,stroke:#01579b
+    classDef pub fill:#fff3e0,stroke:#e65100
+    classDef main fill:#f3e5f5,stroke:#7b1fa2
+    classDef writer fill:#e8f5e9,stroke:#2e7d32
+    classDef final fill:#fce4ec,stroke:#c2185b
+    classDef error fill:#ffebee,stroke:#c62828
 
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
-
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
+    class E1,E2 entry
+    class PUB_LANDING,PUB_SIGNUP pub
+    class CATEGORIES,SIGNUP,PROFILE main
+    class START_WRITING,CREATE_PUBLICATION,CREATE_PUBLICATION_SUCCESS writer
+    class APP_UPSELL,WELCOME,EXIT final
+    class ERROR error
