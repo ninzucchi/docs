@@ -1,3 +1,4 @@
+```mermaid
 flowchart TD
     subgraph Entry["Entry Points"]
         E1["Without Pub<br/>(substack.com signup)"]
@@ -84,3 +85,4 @@ flowchart TD
     class START_WRITING,CREATE_PUBLICATION,CREATE_PUBLICATION_SUCCESS writer
     class APP_UPSELL,WELCOME,EXIT final
     class ERROR error
+```
